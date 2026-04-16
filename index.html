@@ -1,41 +1,376 @@
 <!DOCTYPE html>
-<html>
+<html lang="hu">
 <head>
+  <meta charset="UTF-8">
   <title>AREMIKREO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
   <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #222;
+      --accent: #c8f03c;
+      --accent2: #ff5c3a;
+      --text: #f0f0f0;
+      --muted: #666;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
-      margin: 0;
-      font-family: Arial;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px 80px;
+      overflow-x: hidden;
+    }
+
+    /* Subtle grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(200,240,60,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,240,60,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    /* ── HEADER ── */
+    .header {
       text-align: center;
-      background: #111;
-      color: white;
+      margin-bottom: 48px;
+      animation: fadeDown 0.7s ease both;
     }
+
+    .logo-ring {
+      width: 80px;
+      height: 80px;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      position: relative;
+    }
+
+    .logo-ring::before {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 1px solid rgba(200,240,60,0.2);
+    }
+
+    .logo-ring span {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      color: var(--accent);
+      letter-spacing: 2px;
+    }
+
     h1 {
-      margin-top: 60px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(48px, 12vw, 72px);
+      letter-spacing: 6px;
+      line-height: 1;
+      background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    a {
-      display: block;
-      margin: 15px auto;
-      padding: 15px;
-      width: 250px;
-      background: #333;
-      color: white;
+
+    .tagline {
+      margin-top: 10px;
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    /* ── LINKS ── */
+    .links {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .link-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 22px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
       text-decoration: none;
-      border-radius: 10px;
+      color: var(--text);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.25s, transform 0.2s, box-shadow 0.25s;
+      animation: fadeUp 0.6s ease both;
     }
+
+    .link-item:nth-child(1) { animation-delay: 0.1s; }
+    .link-item:nth-child(2) { animation-delay: 0.2s; }
+    .link-item:nth-child(3) { animation-delay: 0.3s; }
+    .link-item:nth-child(4) { animation-delay: 0.4s; }
+    .link-item:nth-child(5) { animation-delay: 0.5s; }
+
+    .link-item::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--accent);
+      transform: scaleY(0);
+      transition: transform 0.2s ease;
+      transform-origin: bottom;
+    }
+
+    .link-item:hover {
+      border-color: var(--accent);
+      transform: translateX(4px);
+      box-shadow: -4px 0 24px rgba(200,240,60,0.08), 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .link-item:hover::before {
+      transform: scaleY(1);
+    }
+
+    .link-icon {
+      width: 44px;
+      height: 44px;
+      background: #1e1e1e;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      border: 1px solid #2a2a2a;
+    }
+
+    .link-info {
+      flex: 1;
+    }
+
+    .link-name {
+      font-size: 15px;
+      font-weight: 500;
+      color: #fff;
+    }
+
+    .link-desc {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .link-arrow {
+      color: var(--muted);
+      font-size: 18px;
+      transition: color 0.2s, transform 0.2s;
+    }
+
+    .link-item:hover .link-arrow {
+      color: var(--accent);
+      transform: translateX(3px);
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      width: 100%;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 32px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── QR CODE ── */
+    .qr-section {
+      width: 100%;
+      margin-top: 8px;
+      padding: 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      animation: fadeUp 0.6s 0.6s ease both;
+    }
+
+    .qr-title {
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    #qrcode {
+      background: white;
+      padding: 12px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+
+    #qrcode canvas, #qrcode img {
+      display: block;
+    }
+
+    .qr-url {
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      margin-top: 48px;
+      font-size: 12px;
+      color: #333;
+      letter-spacing: 1px;
+      animation: fadeUp 0.6s 0.8s ease both;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
   </style>
 </head>
 <body>
 
-<h1>AREMIKREO</h1>
+<div class="container">
 
-<a href="https://facebook.com/aremikreo">Facebook</a>
-<a href="https://instagram.com/aremikreo">Instagram</a>
-<a href="https://tiktok.com">TikTok</a>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-ring"><span>AR</span></div>
+    <h1>AREMIKREO</h1>
+    <p class="tagline">— Kreatív Vállalkozás —</p>
+  </div>
 
-</body>
-</html>
+  <!-- LINKS -->
+  <div class="links">
+
+    <!-- ✏️ SZERKESZD MEG A LINKEKET AZ IGÉNYEID SZERINT -->
+
+    <a class="link-item" href="https://www.instagram.com/" target="_blank">
+      <div class="link-icon">📸</div>
+      <div class="link-info">
+        <div class="link-name">Instagram</div>
+        <div class="link-desc">Kövesd a munkáimat</div>
+      </div>
+      <span class="link-arrow">→</span>
+    </a>
+
+    <a class="link-item" href="https://www.facebook.com/" target="_blank">
+      <div class="link-icon">💬</div>
+      <div class="link-info">
+        <div class="link-name">Facebook</div>
+        <div class="link-desc">Oldal & közösség</div>
+      </div>
+      <span class="link-arrow">→</span>
+    </a>
+
+    <a class="link-item" href="mailto:info@aremikreo.hu">
+      <div class="link-icon">✉️</div>
+      <div class="link-info">
+        <div class="link-name">E-mail</div>
+        <div class="link-desc">Írj nekem!</div>
+      </div>
+      <span class="link-arrow">→</span>
+    </a>
+
+    <a class="link-item" href="https://www.tiktok.com/" target="_blank">
+      <div class="link-icon">🎵</div>
+      <div class="link-info">
+        <div class="link-name">TikTok</div>
+        <div class="link-desc">Rövid videók</div>
+      </div>
+      <span class="link-arrow">→</span>
+    </a>
+
+    <a class="link-item" href="tel:+36301234567">
+      <div class="link-icon">📞</div>
+      <div class="link-info">
+        <div class="link-name">Telefon</div>
+        <div class="link-desc">Hívj fel közvetlenül</div>
+      </div>
+      <span class="link-arrow">→</span>
+    </a>
+
+  </div>
+
+  <!-- QR CODE -->
+  <div class="section-label">QR kód</div>
+  <div class="qr-section">
+    <p class="qr-title">Szkenneld be & osszd meg</p>
+    <div id="qrcode"></div>
+    <span class="qr-url">aremikreo.github.io</span>
+  </div>
+
+  <p class="footer">© 2025 AREMIKREO</p>
+
+</div>
+
+<script>
+  // QR kód generálása az oldal URL-jéből
+  const siteUrl = "https://aremikreo.github.io";
+
+  new QRCode(document.getElementById("qrcode"), {
+    text: siteUrl,
+    width: 180,
+    height: 180,
+    colorDark: "#000000",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
+</script>
 
 </body>
 </html>
