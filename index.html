@@ -360,7 +360,7 @@
 
 <script>
   // QR kód generálása az oldal URL-jéből
-  const siteUrl = "https://thomson40-wg.github.io/aremikreo.github.io/";
+  const siteUrl = window.location.href ;
 
   new QRCode(document.getElementById("qrcode"), {
     text: siteUrl,
