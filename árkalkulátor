@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- ═══════════════════════════════════════════════════
+     SZERKESZD: oldal cím és meta leírás
+════════════════════════════════════════════════════ -->
+<title>3D Nyomtatás – Azonnali Árajánlat</title>
+<meta name="description" content="Professzionális FDM 3D nyomtatás. Töltsd fel a modelled és azonnal kapsz árajánlatot.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+<style>
+:root {
+  --orange:  #FF5722;
+  --orange2: #FF8A65;
+  --dark:    #111827;
+  --mid:     #374151;
+  --muted:   #6B7280;
+  --border:  #E5E7EB;
+  --surface: #F9F8F6;
+  --white:   #FFFFFF;
+  --teal:    #0F766E;
+  --teal-bg: #CCFBF1;
+  --radius:  12px;
+  --shadow:  0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--dark);font-size:16px;line-height:1.65}
+h1,h2,h3,h4{font-family:'Outfit',sans-serif;line-height:1.2}
+
+/* ── NAV ── */
+nav{background:var(--dark);padding:.9rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.nav-logo{font-family:'Outfit',sans-serif;font-weight:700;font-size:1.1rem;color:#fff;text-decoration:none;display:flex;align-items:center;gap:.5rem}
+.nav-logo span{color:var(--orange)}
+.nav-links{display:flex;gap:1.5rem;list-style:none}
+.nav-links a{color:#D1D5DB;text-decoration:none;font-size:.9rem;transition:color .2s}
+.nav-links a:hover{color:#fff}
+
+/* ── HERO ── */
+.hero{background:var(--dark);padding:5rem 2rem 4rem;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 50%, rgba(255,87,34,.12) 0%, transparent 70%)}
+.hero-badge{display:inline-block;padding:.3rem .9rem;background:rgba(255,87,34,.15);border:1px solid rgba(255,87,34,.3);border-radius:999px;font-size:.8rem;color:var(--orange2);font-family:'DM Mono',monospace;margin-bottom:1.25rem;letter-spacing:.04em}
+.hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;color:#fff;margin-bottom:1rem;max-width:700px;margin-inline:auto}
+.hero h1 em{color:var(--orange);font-style:normal}
+.hero p{font-size:1.1rem;color:#9CA3AF;max-width:520px;margin:0 auto 2rem}
+.hero-cta{display:inline-flex;align-items:center;gap:.5rem;background:var(--orange);color:#fff;padding:.75rem 1.75rem;border-radius:999px;font-family:'Outfit',sans-serif;font-weight:600;font-size:1rem;text-decoration:none;transition:background .2s,transform .15s}
+.hero-cta:hover{background:#E64A19;transform:translateY(-1px)}
+.hero-stats{display:flex;justify-content:center;gap:3rem;margin-top:3rem;padding-top:2.5rem;border-top:1px solid rgba(255,255,255,.08)}
+.stat-val{font-family:'Outfit',sans-serif;font-size:1.75rem;font-weight:700;color:#fff}
+.stat-lbl{font-size:.8rem;color:#6B7280;margin-top:.1rem}
+
+/* ── SECTIONS ── */
+.section{padding:4rem 2rem;max-width:1100px;margin:0 auto}
+.section-tag{font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);margin-bottom:.5rem;font-family:'DM Mono',monospace}
+.section-title{font-size:clamp(1.5rem,3vw,2.25rem);font-weight:700;color:var(--dark);margin-bottom:.75rem}
+.section-sub{font-size:1rem;color:var(--muted);max-width:540px;line-height:1.7}
+
+/* ── CARD ── */
+.card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);padding:2rem}
+
+/* ── CALCULATOR ── */
+#calculator{background:var(--white);border-top:3px solid var(--orange)}
+.calc-wrap{max-width:1100px;margin:0 auto;padding:3rem 2rem}
+.calc-header{margin-bottom:2rem}
+.drop-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:2.5rem 2rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;background:var(--surface)}
+.drop-zone:hover,.drop-zone.over{border-color:var(--orange);background:#FFF3F0}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-icon{font-size:2rem;margin-bottom:.5rem}
+.drop-title{font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:600;color:var(--dark)}
+.drop-sub{font-size:.85rem;color:var(--muted);margin-top:.3rem}
+.fmt-badges{display:flex;gap:.4rem;justify-content:center;margin-top:.6rem}
+.fmt{font-size:.7rem;padding:2px 8px;border-radius:4px;font-weight:600;font-family:'DM Mono',monospace}
+.fmt-stl{background:#D1FAE5;color:#065F46}
+.fmt-3mf{background:#DBEAFE;color:#1E40AF}
+.fmt-obj{background:#FEF3C7;color:#92400E}
+.file-loaded{display:none;align-items:center;gap:.6rem;padding:.5rem .75rem;background:#D1FAE5;border-radius:8px;font-size:.85rem;color:#065F46;margin-top:.75rem;font-family:'DM Mono',monospace}
+.file-loaded.show{display:flex}
+.err-box{display:none;padding:.5rem .75rem;background:#FEE2E2;border-radius:8px;font-size:.85rem;color:#991B1B;margin-top:.5rem;border-left:3px solid #EF4444}
+.loading-box{display:none;text-align:center;padding:.75rem;color:var(--muted);font-size:.85rem}
+
+/* settings */
+.settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;margin-top:1rem}
+.settings-group h4{font-family:'Outfit',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.4rem}
+.field{display:flex;flex-direction:column;gap:2px}
+.field label{font-size:.72rem;color:var(--muted)}
+.field input[type=number]{padding:5px 8px;font-size:.85rem;font-family:'DM Mono',monospace;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--dark);transition:border-color .15s}
+.field input[type=number]:focus{outline:none;border-color:var(--orange)}
+.field input.accent{border-color:#86EFAC;background:#F0FDF4}
+.tog-row{display:flex;align-items:center;justify-content:space-between;padding:.4rem 0}
+.tog-row label{font-size:.9rem;color:var(--dark)}
+.sw{position:relative;width:36px;height:20px;flex-shrink:0}
+.sw input{opacity:0;width:0;height:0}
+.sw-sl{position:absolute;inset:0;background:var(--border);border-radius:10px;cursor:pointer;transition:background .2s}
+.sw-sl:before{content:'';position:absolute;width:14px;height:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.sw input:checked+.sw-sl{background:var(--orange)}
+.sw input:checked+.sw-sl:before{transform:translateX(16px)}
+.acc-toggle{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:.6rem 0;user-select:none;border-bottom:1px solid var(--border);margin-bottom:.75rem}
+.acc-toggle h3{font-family:'Outfit',sans-serif;font-size:1rem;font-weight:600;color:var(--dark)}
+.acc-arr{font-size:.85rem;color:var(--muted);transition:transform .2s}
+.acc-body{overflow:hidden;transition:max-height .3s ease}
+
+/* results */
+.results-wrap{margin-top:2rem;display:none}
+.geo-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1.5rem}
+.geo-card{background:var(--surface);border-radius:8px;padding:.75rem 1rem;border:1px solid var(--border)}
+.geo-label{font-size:.72rem;color:var(--muted);margin-bottom:.2rem;font-family:'DM Mono',monospace;letter-spacing:.04em}
+.geo-val{font-family:'DM Mono',monospace;font-size:1.1rem;font-weight:500;color:var(--dark)}
+.geo-unit{font-size:.72rem;color:var(--muted);margin-left:2px}
+.material-bars{margin:.5rem 0 1.25rem}
+.bar-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem}
+.bar-lbl{font-size:.78rem;color:var(--muted);width:140px;flex-shrink:0;text-align:right}
+.bar-track{flex:1;background:var(--surface);border-radius:4px;height:10px;overflow:hidden;border:1px solid var(--border)}
+.bar-fill{height:100%;border-radius:4px;transition:width .4s ease}
+.bar-val{font-size:.78rem;font-family:'DM Mono',monospace;color:var(--dark);width:50px;flex-shrink:0}
+.price-table{width:100%;border-collapse:collapse}
+.price-table tr{border-bottom:1px solid var(--border)}
+.price-table tr:last-child{border-bottom:none}
+.price-table td{padding:.6rem .75rem;font-size:.9rem}
+.price-table td:last-child{text-align:right;font-family:'DM Mono',monospace;font-weight:500}
+.price-table .total-row td{background:var(--dark);color:#fff;font-family:'Outfit',sans-serif;font-weight:600;font-size:1.05rem}
+.price-table .profit-row td{background:var(--teal-bg);color:var(--teal)}
+.price-table .profit-row td:last-child{font-weight:700}
+.price-label{color:var(--muted)}
+.margin-pill{font-size:.7rem;background:rgba(15,118,110,.15);color:var(--teal);padding:1px 7px;border-radius:999px;margin-left:.4rem;font-family:'DM Mono',monospace}
+.note-box{font-size:.78rem;color:var(--muted);padding:.5rem .75rem;background:var(--surface);border-radius:6px;border-left:3px solid var(--border);margin-top:.75rem;line-height:1.5}
+
+/* ── QR SECTION ── */
+.qr-section{background:var(--dark);padding:4rem 2rem}
+.qr-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:3rem;align-items:center}
+.qr-text .section-title{color:#fff}
+.qr-text .section-sub{color:#9CA3AF}
+.qr-box{background:var(--white);border-radius:var(--radius);padding:1.5rem;text-align:center;flex-shrink:0}
+.qr-box #qrcode{margin:0 auto .75rem}
+.qr-box #qrcode canvas,#qrcode img{border-radius:6px}
+.url-input-wrap{margin-top:1rem}
+.url-input-wrap label{font-size:.75rem;color:#9CA3AF;display:block;margin-bottom:.3rem;font-family:'DM Mono',monospace}
+.url-input-wrap input{width:100%;padding:.5rem .75rem;font-size:.85rem;font-family:'DM Mono',monospace;border:1px solid rgba(255,255,255,.15);border-radius:6px;background:rgba(255,255,255,.08);color:#fff;outline:none}
+.url-input-wrap input:focus{border-color:var(--orange)}
+.qr-hint{font-size:.72rem;color:#6B7280;margin-top:.35rem}
+
+/* ── ABOUT ── */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;margin-top:2rem}
+.about-text p{color:var(--mid);margin-bottom:.75rem;line-height:1.75}
+.services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-top:2rem}
+.service-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:1.25rem;box-shadow:var(--shadow)}
+.service-icon{font-size:1.5rem;margin-bottom:.5rem}
+.service-card h4{font-family:'Outfit',sans-serif;font-weight:600;font-size:.95rem;color:var(--dark);margin-bottom:.3rem}
+.service-card p{font-size:.83rem;color:var(--muted);line-height:1.5}
+
+/* ── PRICING INFO ── */
+.pricing-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-top:1.5rem}
+.price-item{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:1.25rem;text-align:center}
+.price-item .big{font-family:'Outfit',sans-serif;font-size:1.6rem;font-weight:700;color:var(--orange)}
+.price-item .unit{font-size:.75rem;color:var(--muted);font-family:'DM Mono',monospace}
+.price-item .desc{font-size:.83rem;color:var(--mid);margin-top:.25rem}
+
+/* ── CONTACT ── */
+.contact-section{background:var(--orange);padding:3.5rem 2rem}
+.contact-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+.contact-inner h2{font-family:'Outfit',sans-serif;font-weight:700;font-size:1.75rem;color:#fff;margin-bottom:.5rem}
+.contact-inner p{color:rgba(255,255,255,.8);line-height:1.7}
+.contact-details{display:flex;flex-direction:column;gap:.75rem}
+.contact-item{display:flex;align-items:center;gap:.75rem;background:rgba(255,255,255,.12);border-radius:8px;padding:.75rem 1rem}
+.contact-item .ci-icon{font-size:1.1rem;width:24px;flex-shrink:0}
+.contact-item .ci-text{font-size:.9rem;color:#fff}
+.contact-item .ci-label{font-size:.7rem;color:rgba(255,255,255,.6);display:block;margin-bottom:1px}
+
+/* ── FOOTER ── */
+footer{background:#0D1117;padding:1.5rem 2rem;text-align:center}
+footer p{font-size:.78rem;color:#4B5563;font-family:'DM Mono',monospace}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .about-grid,.contact-inner,.qr-inner{grid-template-columns:1fr}
+  .qr-box{margin:0 auto;max-width:260px}
+  .hero-stats{gap:1.5rem}
+  nav{padding:.75rem 1rem}
+  .nav-links{display:none}
+  .section{padding:3rem 1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ NAV ══════════════════════════════════════════ -->
+<nav>
+  <a class="nav-logo" href="#">
+    <!-- SZERKESZD: vállalkozás neve -->
+    ⬡ <span>3D</span>Print
+  </a>
+  <ul class="nav-links">
+    <li><a href="#calculator">Árajánlat</a></li>
+    <li><a href="#services">Szolgáltatások</a></li>
+    <li><a href="#pricing">Árak</a></li>
+    <li><a href="#contact">Kapcsolat</a></li>
+  </ul>
+</nav>
+
+<!-- ══ HERO ══════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-badge">FDM · PLA · 0.4mm nozzle · 0.12mm réteg</div>
+  <!-- SZERKESZD: főcím -->
+  <h1>Töltsd fel a modelled,<br><em>azonnal megkapod az árat.</em></h1>
+  <p>Nincs várakozás, nincs egyeztetés. A kalkulátor másodpercek alatt kiszámolja a nyomtatás pontos költségét.</p>
+  <a href="#calculator" class="hero-cta">⬡ Számíts árat most</a>
+  <div class="hero-stats">
+    <!-- SZERKESZD: statisztikák -->
+    <div><div class="stat-val">0.12mm</div><div class="stat-lbl">Rétegvastagság</div></div>
+    <div><div class="stat-val">±15%</div><div class="stat-lbl">Becslési pontosság</div></div>
+    <div><div class="stat-val">STL · 3MF · OBJ</div><div class="stat-lbl">Támogatott formátumok</div></div>
+  </div>
+</section>
+
+<!-- ══ CALCULATOR ══════════════════════════════════ -->
+<div id="calculator">
+<div class="calc-wrap">
+  <div class="calc-header">
+    <div class="section-tag">Kalkulátor</div>
+    <h2 class="section-title">Azonnali árajánlat</h2>
+    <p class="section-sub">Húzd ide a 3D modelledet – STL, 3MF vagy OBJ formátumban.</p>
+  </div>
+
+  <!-- Drop zone -->
+  <div class="drop-zone" id="dz">
+    <input type="file" id="fi" accept=".stl,.3mf,.obj">
+    <div class="drop-icon">⬡</div>
+    <div class="drop-title" id="dtt">Fájl húzható ide, vagy kattints a megnyitáshoz</div>
+    <div class="drop-sub">Bináris/ASCII STL · 3MF (Bambu/Orca/Creality/Prusa) · Wavefront OBJ</div>
+    <div class="fmt-badges">
+      <span class="fmt fmt-stl">STL</span>
+      <span class="fmt fmt-3mf">3MF</span>
+      <span class="fmt fmt-obj">OBJ</span>
+    </div>
+  </div>
+  <div class="file-loaded" id="file-loaded">
+    <span id="fl-badge" class="fmt">–</span>
+    <span id="fl-name">–</span>
+    <span id="fl-tris" style="opacity:.6">–</span>
+  </div>
+  <div class="err-box" id="err-box"></div>
+  <div class="loading-box" id="loading-box">⏳ Fájl feldolgozása…</div>
+
+  <!-- Settings (collapsible) -->
+  <div class="card" style="margin-top:1.5rem">
+    <div class="acc-toggle" id="s-toggle">
+      <h3>Nyomtatási beállítások &amp; árképzés</h3>
+      <span class="acc-arr" id="s-arr">▾</span>
+    </div>
+    <div class="acc-body" id="s-body" style="max-height:600px">
+      <div class="settings-grid">
+
+        <div class="settings-group">
+          <h4>Profil (Sunlu 4 figure)</h4>
+          <div class="field-row">
+            <div class="field"><label>Rétegvastagság (mm)</label><input type="number" id="slh" value="0.12" step="0.01" min="0.05" max="0.4"></div>
+            <div class="field"><label>Vonalszélesség (mm)</label><input type="number" id="slw" value="0.43" step="0.01"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Falak száma</label><input type="number" id="swc" value="2" step="1" min="1" max="8"></div>
+            <div class="field"><label>Infill (%)</label><input type="number" id="sif" value="15" step="1" min="0" max="100"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Felső rétegek</label><input type="number" id="stl" value="5" step="1" min="1"></div>
+            <div class="field"><label>Alsó rétegek</label><input type="number" id="sbl" value="3" step="1" min="1"></div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h4>Sebesség &amp; anyag</h4>
+          <div class="field-row">
+            <div class="field"><label>Külső fal (mm/s)</label><input type="number" id="sws" value="70" step="5"></div>
+            <div class="field"><label>Infill (mm/s)</label><input type="number" id="sis" value="180" step="5"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>PLA sűrűség (g/cm³)</label><input type="number" id="sde" value="1.24" step="0.01"></div>
+            <div class="field"><label>Travel overhead (%)</label><input type="number" id="sto" value="20" step="5"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Dőlésszög küszöb (°)</label><input type="number" id="san" value="30" step="5"></div>
+            <div class="field"><label>Fa support faktor</label><input type="number" id="stf" value="0.5" step="0.05"></div>
+          </div>
+          <div class="tog-row">
+            <label>Támasz engedélyezve</label>
+            <label class="sw"><input type="checkbox" id="ssu" checked><span class="sw-sl"></span></label>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h4>Árképzés</h4>
+          <div class="field-row">
+            <div class="field"><label>Alapdíj (Ft)</label><input type="number" id="sbf" value="2000" step="100"></div>
+            <div class="field"><label>Csomagolás (Ft)</label><input type="number" id="spf" value="3000" step="100"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Óradíj (Ft/h)</label><input type="number" id="shc" value="1200" step="100"></div>
+            <div class="field"><label style="color:#059669;font-weight:500">Eladási ár (Ft/g)</label><input type="number" id="smc" value="15" step="0.5" class="accent"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Bekerülési ár (Ft/g)</label><input type="number" id="scp" value="5" step="0.5"></div>
+          </div>
+        </div>
+
+      </div><!-- /settings-grid -->
+    </div><!-- /acc-body -->
+  </div><!-- /card -->
+
+  <!-- Results -->
+  <div class="results-wrap" id="results">
+
+    <div class="section-tag" style="margin-top:2rem">Geometria</div>
+    <div class="geo-row" id="geo-row">
+      <div class="geo-card"><div class="geo-label">BEFOGLALÓ DOBOZ</div><div class="geo-val" id="r-bbox">–</div></div>
+      <div class="geo-card"><div class="geo-label">TÉRFOGAT</div><div class="geo-val" id="r-vol">–<span class="geo-unit">cm³</span></div></div>
+      <div class="geo-card"><div class="geo-label">FELÜLET</div><div class="geo-val" id="r-area">–<span class="geo-unit">cm²</span></div></div>
+      <div class="geo-card"><div class="geo-label">OVERHANG</div><div class="geo-val" id="r-ovhg">–<span class="geo-unit">cm²</span></div></div>
+    </div>
+
+    <div class="section-tag">Anyagmegoszlás</div>
+    <div class="material-bars" id="bars"></div>
+
+    <div class="card">
+      <table class="price-table">
+        <tr><td class="price-label">Alapdíj</td><td id="p-bf">–</td></tr>
+        <tr><td class="price-label">Csomagolás + utómunka</td><td id="p-pf">–</td></tr>
+        <tr><td class="price-label">Anyagköltség (eladási ár)</td><td id="p-mc">–</td></tr>
+        <tr><td class="price-label">Időköltség</td><td id="p-tc">–</td></tr>
+        <tr class="total-row"><td>Vevőnek számlázott összeg</td><td id="p-tot">–</td></tr>
+        <tr><td class="price-label">Saját anyagköltség</td><td id="p-cost">–</td></tr>
+        <tr class="profit-row"><td>Becsült haszon <span class="margin-pill" id="p-margin">–</span></td><td id="p-profit">–</td></tr>
+      </table>
+      <div class="note-box" id="p-note"></div>
+    </div>
+
+  </div><!-- /results-wrap -->
+</div><!-- /calc-wrap -->
+</div><!-- /#calculator -->
+
+<!-- ══ QR CODE ═════════════════════════════════════ -->
+<section class="qr-section" id="qr">
+<div class="qr-inner">
+  <div class="qr-text">
+    <div class="section-tag" style="color:var(--orange2)">Megosztás</div>
+    <h2 class="section-title">Küldd el az árajánlat-kalkulátort</h2>
+    <p class="section-sub">Szkenneld be a QR kódot, vagy küldd el az oldal linkjét – a vevőd azonnal kiszámolhatja a saját modelljének árát.</p>
+    <div class="url-input-wrap" style="margin-top:1.25rem;max-width:400px">
+      <label>Az oldal URL-je (írd be, hogy frissüljön a QR kód)</label>
+      <input type="text" id="qr-url" placeholder="https://...">
+      <div class="qr-hint">Ha még nincs URL, a fájlt ingyenesen hosztolhatod pl. GitHub Pages-en vagy Netlify-on.</div>
+    </div>
+  </div>
+  <div class="qr-box">
+    <div id="qrcode"></div>
+    <div style="font-size:.75rem;color:var(--muted);font-family:'DM Mono',monospace">árajánlat kalkulátor</div>
+  </div>
+</div>
+</section>
+
+<!-- ══ ABOUT ═══════════════════════════════════════ -->
+<section id="services">
+<div class="section">
+  <div class="section-tag">Rólunk</div>
+  <!-- SZERKESZD: vállalkozás leírás -->
+  <h2 class="section-title">Professzionális FDM 3D nyomtatás</h2>
+
+  <div class="about-grid">
+    <div class="about-text">
+      <!-- ═══════════════════════════════════════════
+           SZERKESZD: vállalkozásod leírása
+      ════════════════════════════════════════════ -->
+      <p>Kis 3D nyomtatási vállalkozásunk <strong>PLA filamenttel, FDM technológiával</strong> dolgozik. Specializálódtunk figurákra, prototípusokra és egyedi darabok gyártására.</p>
+      <p>Gépeink <strong>0.4 mm-es nozzle-lel, 0.12 mm rétegvastagsággal</strong> nyomtatnak – ez az ún. „figure profil", amely kiemelkedő felületi minőséget biztosít apró részleteknél is.</p>
+      <p>Fa típusú (tree support) algoritmust használunk, 30°-os dőlésszög-küszöbbel, hogy a support nyomok minimálisak legyenek a kész darabon.</p>
+      <!-- Hozzáadhatsz még szöveget ide -->
+    </div>
+    <div>
+      <div class="services-grid" style="margin-top:0">
+        <!-- SZERKESZD: szolgáltatások -->
+        <div class="service-card">
+          <div class="service-icon">🏰</div>
+          <h4>Figurák &amp; modellek</h4>
+          <p>Játékfigurák, miniatúrák, dísztárgyak nagy részletességgel.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">⚙️</div>
+          <h4>Prototípusok</h4>
+          <p>Funkcionális alkatrészek, mechanikus prototípusok PLA-ban.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">📦</div>
+          <h4>Kis szériák</h4>
+          <p>Ismétlődő darabok, sorozatgyártás kedvező áron.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">🎁</div>
+          <h4>Egyedi megrendelések</h4>
+          <p>Saját STL fájlból, vagy segítünk a modell megtalálásában.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ══ PRICING ════════════════════════════════════ -->
+<section id="pricing" style="background:var(--white);border-top:1px solid var(--border)">
+<div class="section">
+  <div class="section-tag">Árak</div>
+  <h2 class="section-title">Átlátható árazás</h2>
+  <p class="section-sub">Minden rendelésnél fix díjak + anyag- és időköltség. A kalkulátor fent automatikusan összerakja a végösszeget.</p>
+  <div class="pricing-info">
+    <div class="price-item">
+      <div class="big">2 000</div>
+      <div class="unit">Ft / rendelés</div>
+      <div class="desc">Alapdíj – minden rendelésnél</div>
+    </div>
+    <div class="price-item">
+      <div class="big">3 000</div>
+      <div class="unit">Ft / rendelés</div>
+      <div class="desc">Csomagolás + utómunka</div>
+    </div>
+    <div class="price-item">
+      <div class="big">15</div>
+      <div class="unit">Ft / gramm</div>
+      <div class="desc">PLA filament anyagköltség</div>
+    </div>
+    <div class="price-item">
+      <div class="big">1 200</div>
+      <div class="unit">Ft / óra</div>
+      <div class="desc">Gépi időköltség</div>
+    </div>
+  </div>
+
+  <!-- SZERKESZD: megjegyzések az árazáshoz -->
+  <div style="margin-top:1.5rem;padding:1rem 1.25rem;background:var(--surface);border-radius:var(--radius);border-left:3px solid var(--orange);font-size:.88rem;color:var(--mid);line-height:1.7">
+    <strong>Megjegyzések:</strong> Az árak a kalkulátor által becsült értékek, amelyek ±15%-on belül közelítik a tényleges slicer-értékeket.
+    Nagy modelleknél (150mm+) a gépidő dominál. A support szükséglete a modell geometriájától függ – a kalkulátor automatikusan jelzi.
+    <!-- Hozzáadhatsz szállítási infót, fizetési módot, stb. -->
+  </div>
+</div>
+</section>
+
+<!-- ══ CONTACT ═════════════════════════════════════ -->
+<section class="contact-section" id="contact">
+<div class="contact-inner">
+  <div>
+    <!-- SZERKESZD: kapcsolati szöveg -->
+    <h2>Kérdésed van? Írj nekünk!</h2>
+    <p>Ha a kalkulátor nem ad elegendő infót, vagy egyedi kérésed van, keress minket bizalommal.</p>
+  </div>
+  <div class="contact-details">
+    <!-- SZERKESZD: elérhetőségek -->
+    <div class="contact-item">
+      <span class="ci-icon">✉️</span>
+      <span class="ci-text">
+        <span class="ci-label">Email</span>
+        email@example.com
+      </span>
+    </div>
+    <div class="contact-item">
+      <span class="ci-icon">📱</span>
+      <span class="ci-text">
+        <span class="ci-label">Telefon / Messenger</span>
+        +36 XX XXX XXXX
+      </span>
+    </div>
+    <div class="contact-item">
+      <span class="ci-icon">📍</span>
+      <span class="ci-text">
+        <span class="ci-label">Helyszín</span>
+        Budapest, Magyarország
+      </span>
+    </div>
+    <div class="contact-item">
+      <span class="ci-icon">⏰</span>
+      <span class="ci-text">
+        <span class="ci-label">Átfutási idő</span>
+        általában 3–5 munkanap
+      </span>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ══ FOOTER ══════════════════════════════════════ -->
+<footer>
+  <!-- SZERKESZD: footer szöveg -->
+  <p>© 2025 3DPrint vállalkozás · FDM nyomtatás PLA filamenttel · A kalkulátor ±15% pontossággal becsül</p>
+</footer>
+
+
+<!-- ══ JAVASCRIPT ══════════════════════════════════ -->
+<script>
+// ── Accordion ──
+let sOpen = true;
+document.getElementById('s-toggle').addEventListener('click', () => {
+  sOpen = !sOpen;
+  document.getElementById('s-body').style.maxHeight = sOpen ? '600px' : '0';
+  document.getElementById('s-arr').style.transform = sOpen ? '' : 'rotate(-90deg)';
+});
+
+// ── Drop zone ──
+const dz = document.getElementById('dz');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+document.getElementById('fi').addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+document.querySelectorAll('input[type=number], input[type=checkbox]').forEach(el => {
+  el.addEventListener('change', () => { if (lastTris) doCalc(lastTris); });
+});
+
+let lastTris = null;
+
+function showErr(msg) {
+  const b = document.getElementById('err-box');
+  b.textContent = 'Hiba: ' + msg; b.style.display = 'block';
+  document.getElementById('loading-box').style.display = 'none';
+}
+
+async function handleFile(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  document.getElementById('err-box').style.display = 'none';
+  document.getElementById('loading-box').style.display = 'block';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('file-loaded').classList.remove('show');
+  try {
+    let tris;
+    if (ext === 'stl')       tris = parseSTL(await file.arrayBuffer());
+    else if (ext === '3mf')  tris = await parse3MF(file);
+    else if (ext === 'obj')  tris = parseOBJ(await file.text());
+    else throw new Error('Csak .stl, .3mf és .obj formátum támogatott');
+    if (!tris || tris.length === 0) throw new Error('Nem található geometria a fájlban');
+    lastTris = tris;
+    document.getElementById('loading-box').style.display = 'none';
+    const bmap = { stl: 'fmt-stl', obj: 'fmt-obj', '3mf': 'fmt-3mf' };
+    const fl = document.getElementById('file-loaded');
+    document.getElementById('fl-badge').textContent = ext.toUpperCase();
+    document.getElementById('fl-badge').className = 'fmt ' + (bmap[ext] || '');
+    document.getElementById('fl-name').textContent = file.name;
+    document.getElementById('fl-tris').textContent = tris.length.toLocaleString('hu-HU') + ' háromszög';
+    fl.classList.add('show');
+    document.getElementById('dtt').textContent = file.name;
+    doCalc(tris);
+  } catch (e) { showErr(e.message); }
+}
+
+// ── STL parser ──
+function parseSTL(buf) {
+  let ascii = false;
+  try { ascii = new TextDecoder().decode(new Uint8Array(buf, 0, 256)).trimStart().startsWith('solid'); } catch {}
+  if (ascii) { try { const r = stlASCII(new TextDecoder().decode(buf)); if (r.length > 0) return r; } catch {} }
+  return stlBinary(buf);
+}
+function stlBinary(buf) {
+  const v = new DataView(buf), n = v.getUint32(80, true), t = [];
+  for (let i = 0, o = 84; i < n; i++, o += 50) {
+    const vs = [];
+    for (let j = 0; j < 3; j++) { const b = o + 12 + j * 12; vs.push([v.getFloat32(b, true), v.getFloat32(b + 4, true), v.getFloat32(b + 8, true)]); }
+    t.push(vs);
+  }
+  return t;
+}
+function stlASCII(text) {
+  const t = [], lines = text.split('\n'); let cur = null;
+  for (const raw of lines) {
+    const l = raw.trim();
+    if (l.startsWith('facet normal')) cur = [];
+    else if (l.startsWith('vertex') && cur !== null) { const p = l.split(/\s+/); cur.push([+p[1], +p[2], +p[3]]); }
+    else if (l.startsWith('endfacet') && cur && cur.length === 3) { t.push(cur); cur = null; }
+  }
+  return t;
+}
+
+// ── 3MF parser (with transform fix) ──
+const NS3MF = 'http://schemas.microsoft.com/3dmanufacturing/core/2015/02';
+function getEls(parent, tag) {
+  let r = [...parent.getElementsByTagNameNS(NS3MF, tag)];
+  if (!r.length) r = [...parent.getElementsByTagNameNS('*', tag)];
+  if (!r.length) r = [...parent.getElementsByTagName(tag)];
+  return r;
+}
+function parseMat4(s) {
+  if (!s) return null;
+  const v = s.trim().split(/\s+/).map(Number);
+  return v.length === 12 ? v : null;
+}
+function applyMat(v, T) {
+  if (!T) return v;
+  return [
+    T[0] * v[0] + T[3] * v[1] + T[6] * v[2] + T[9],
+    T[1] * v[0] + T[4] * v[1] + T[7] * v[2] + T[10],
+    T[2] * v[0] + T[5] * v[1] + T[8] * v[2] + T[11]
+  ];
+}
+async function parse3MF(file) {
+  if (typeof JSZip === 'undefined') throw new Error('JSZip nem töltődött be');
+  const zip = await JSZip.loadAsync(await file.arrayBuffer());
+  const modelFiles = Object.keys(zip.files).filter(n => n.endsWith('.model'));
+  if (!modelFiles.length) throw new Error('Nem található .model fájl');
+
+  // Parse main model for build transforms
+  let buildTransforms = [];
+  const mainKey = modelFiles.find(n => n === '3D/3dmodel.model') || modelFiles[0];
+  try {
+    const mainXml = await zip.file(mainKey).async('text');
+    const mainDoc = new DOMParser().parseFromString(mainXml, 'application/xml');
+    for (const item of getEls(mainDoc, 'item')) {
+      const T = parseMat4(item.getAttribute('transform'));
+      if (T) buildTransforms.push(T);
+    }
+  } catch {}
+
+  // Parse all meshes from sub-files
+  const allV = [], allT = [];
+  for (const fname of modelFiles) {
+    const xml = await zip.file(fname).async('text');
+    const doc = new DOMParser().parseFromString(xml, 'application/xml');
+    for (const obj of getEls(doc, 'object')) {
+      const meshArr = getEls(obj, 'mesh');
+      if (!meshArr.length) continue;
+      const mesh = meshArr[0];
+      const vEls = getEls(mesh, 'vertex'), tEls = getEls(mesh, 'triangle');
+      if (!vEls.length || !tEls.length) continue;
+      const verts = [];
+      for (const v of vEls) verts.push([+v.getAttribute('x'), +v.getAttribute('y'), +v.getAttribute('z')]);
+      const off = allV.length;
+      allV.push(...verts);
+      // Apply first build transform (covers most single-object prints)
+      const T = buildTransforms[0] || null;
+      for (const t of tEls) {
+        const i1 = +t.getAttribute('v1') + off, i2 = +t.getAttribute('v2') + off, i3 = +t.getAttribute('v3') + off;
+        if (allV[i1] && allV[i2] && allV[i3]) {
+          allT.push([applyMat(allV[i1], T), applyMat(allV[i2], T), applyMat(allV[i3], T)]);
+        }
+      }
+    }
+  }
+  if (!allT.length) throw new Error('Üres mesh a 3MF-ben');
+  return allT;
+}
+
+// ── OBJ parser ──
+function parseOBJ(text) {
+  const verts = [], tris = [];
+  for (const raw of text.split('\n')) {
+    const l = raw.trim();
+    if (l.startsWith('v ')) { const p = l.split(/\s+/); verts.push([+p[1], +p[2], +p[3]]); }
+    else if (l.startsWith('f ')) {
+      const p = l.split(/\s+/).slice(1).map(s => +s.split('/')[0] - 1);
+      for (let i = 1; i < p.length - 1; i++)
+        if (verts[p[0]] && verts[p[i]] && verts[p[i + 1]]) tris.push([verts[p[0]], verts[p[i]], verts[p[i + 1]]]);
+    }
+  }
+  return tris;
+}
+
+// ── Geometry ──
+function cross(a, b) { return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; }
+function nlen(v) { return Math.sqrt(v[0]**2 + v[1]**2 + v[2]**2); }
+function analyze(tris, sinT) {
+  let vol = 0, sa = 0, ovhg = 0, hUp = 0, hDn = 0;
+  let mnX = 1e18, mnY = 1e18, mnZ = 1e18, mxX = -1e18, mxY = -1e18, mxZ = -1e18;
+  for (const [v1, v2, v3] of tris) {
+    for (const v of [v1, v2, v3]) {
+      if (v[0] < mnX) mnX = v[0]; if (v[0] > mxX) mxX = v[0];
+      if (v[1] < mnY) mnY = v[1]; if (v[1] > mxY) mxY = v[1];
+      if (v[2] < mnZ) mnZ = v[2]; if (v[2] > mxZ) mxZ = v[2];
+    }
+    vol += (v1[0]*(v2[1]*v3[2]-v3[1]*v2[2]) + v2[0]*(v3[1]*v1[2]-v1[1]*v3[2]) + v3[0]*(v1[1]*v2[2]-v2[1]*v1[2])) / 6;
+    const e1 = [v2[0]-v1[0], v2[1]-v1[1], v2[2]-v1[2]], e2 = [v3[0]-v1[0], v3[1]-v1[1], v3[2]-v1[2]];
+    const cr = cross(e1, e2), crl = nlen(cr), area = crl / 2;
+    sa += area;
+    if (crl > 0) {
+      const nz = cr[2] / crl;
+      if (nz < -sinT) ovhg += area * Math.abs(nz);
+      if (nz > 0.8) hUp += area;
+      if (nz < -0.8) hDn += area;
+    }
+  }
+  return { vol: Math.abs(vol), sa, ovhg, hUp, hDn, bbX: mxX - mnX, bbY: mxY - mnY, bbZ: mxZ - mnZ };
+}
+
+// ── Calculate & render ──
+const huf = v => Math.round(v).toLocaleString('hu-HU') + ' Ft';
+function gs() {
+  return {
+    lh: +document.getElementById('slh').value, lw: +document.getElementById('slw').value,
+    wc: +document.getElementById('swc').value, inf: +document.getElementById('sif').value / 100,
+    ws: +document.getElementById('sws').value, is_: +document.getElementById('sis').value,
+    tl: +document.getElementById('stl').value, bl: +document.getElementById('sbl').value,
+    de: +document.getElementById('sde').value, to: +document.getElementById('sto').value / 100,
+    ang: +document.getElementById('san').value, tf: +document.getElementById('stf').value,
+    su: document.getElementById('ssu').checked,
+    mc: +document.getElementById('smc').value, cp: +document.getElementById('scp').value,
+    hc: +document.getElementById('shc').value, bf: +document.getElementById('sbf').value,
+    pf: +document.getElementById('spf').value
+  };
+}
+function doCalc(tris) {
+  const s = gs();
+  const g = analyze(tris, Math.sin(s.ang * Math.PI / 180));
+  const vertSa = g.sa - g.hUp - g.hDn;
+  const shellV = vertSa * s.wc * s.lw;
+  const tbV = g.hUp * s.tl * s.lh + g.hDn * s.bl * s.lh;
+  const infV = Math.max(0, g.vol - shellV - tbV) * s.inf;
+  const modV = shellV + tbV + infV;
+  const suppV = s.su && g.ovhg > 0 ? g.ovhg * (g.bbZ * 0.35) * 0.20 * s.tf : 0;
+  const totG = (modV + suppV) / 1000 * s.de;
+  const suppG = suppV / 1000 * s.de;
+  const modG = modV / 1000 * s.de;
+  const shellG = shellV / 1000 * s.de, tbG = tbV / 1000 * s.de, iG = infV / 1000 * s.de;
+  const sfr = s.lw * s.lh * s.ws, ifr = s.lw * s.lh * s.is_;
+  const pH = ((shellV / sfr + infV / ifr + tbV / sfr) * (1 + s.to)) / 3600;
+  const sH = s.su ? (suppV / ifr * (1 + s.to)) / 3600 : 0;
+  const totH = pH + sH;
+  const matRev = totG * s.mc, matCost = totG * s.cp, timeC = totH * s.hc;
+  const total = s.bf + s.pf + matRev + timeC;
+  const profit = total - (s.bf + s.pf + matCost + timeC);
+  const margin = total > 0 ? (profit / total * 100).toFixed(0) : 0;
+
+  document.getElementById('r-bbox').innerHTML = `${g.bbX.toFixed(0)}×${g.bbY.toFixed(0)}×${g.bbZ.toFixed(0)} <span class="geo-unit">mm</span>`;
+  document.getElementById('r-vol').innerHTML = (g.vol / 1000).toFixed(2) + '<span class="geo-unit">cm³</span>';
+  document.getElementById('r-area').innerHTML = (g.sa / 100).toFixed(1) + '<span class="geo-unit">cm²</span>';
+  document.getElementById('r-ovhg').innerHTML = (g.ovhg / 100).toFixed(1) + '<span class="geo-unit">cm²</span>';
+
+  const barsData = [
+    { l: 'Függőleges falak', v: shellG, c: '#16A34A' },
+    { l: 'Top/bottom', v: tbG, c: '#2563EB' },
+    { l: 'Infill (' + Math.round(s.inf * 100) + '%)', v: iG, c: '#9CA3AF' },
+    { l: 'Support (fa)', v: suppG, c: '#F97316' },
+  ];
+  const mx = Math.max(...barsData.map(b => b.v), 0.01);
+  document.getElementById('bars').innerHTML = barsData.map(b =>
+    `<div class="bar-row"><span class="bar-lbl">${b.l}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.max(2, b.v / mx * 100).toFixed(1)}%;background:${b.c}"></div></div><span class="bar-val">${b.v.toFixed(1)} g</span></div>`
+  ).join('');
+
+  document.getElementById('p-bf').textContent = huf(s.bf);
+  document.getElementById('p-pf').textContent = huf(s.pf);
+  document.getElementById('p-mc').textContent = huf(matRev) + ` (${totG.toFixed(1)} g × ${s.mc} Ft)`;
+  document.getElementById('p-tc').textContent = huf(timeC) + ` (${totH.toFixed(2)} ó)`;
+  document.getElementById('p-tot').textContent = huf(total);
+  document.getElementById('p-cost').textContent = huf(matCost) + ` (${totG.toFixed(1)} g × ${s.cp} Ft)`;
+  document.getElementById('p-profit').textContent = huf(profit);
+  document.getElementById('p-margin').textContent = margin + '% margin';
+  document.getElementById('p-note').textContent =
+    `Pontosság ±10–25%. Javított anyagszámítás: shell=csak függőleges falak, top/bottom külön számolva. Support: fa típus, ${s.ang}° küszöb, ${(s.tf * 100).toFixed(0)}% faktor. Travel overhead: ${Math.round(s.to * 100)}%.`;
+
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── QR Code ──
+let qrInstance = null;
+function makeQR(url) {
+  const el = document.getElementById('qrcode');
+  el.innerHTML = '';
+  if (!url) return;
+  try {
+    qrInstance = new QRCode(el, {
+      text: url, width: 180, height: 180,
+      colorDark: '#111827', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  } catch (e) { el.innerHTML = '<p style="font-size:.75rem;color:#999">QR hiba</p>'; }
+}
+
+const qrInput = document.getElementById('qr-url');
+const savedUrl = localStorage.getItem('qr-url') || '';
+qrInput.value = savedUrl;
+makeQR(savedUrl || 'https://pelda.hu/3d-nyomtatas');
+let qrTimer;
+qrInput.addEventListener('input', () => {
+  clearTimeout(qrTimer);
+  qrTimer = setTimeout(() => {
+    localStorage.setItem('qr-url', qrInput.value);
+    makeQR(qrInput.value);
+  }, 600);
+});
+</script>
+</body>
+</html>
