@@ -773,7 +773,7 @@ function makeQR(url) {
 const qrInput = document.getElementById('qr-url');
 const savedUrl = localStorage.getItem('qr-url') || '';
 qrInput.value = savedUrl;
-makeQR(savedUrl || 'https://pelda.hu/3d-nyomtatas');
+makeQR(savedUrl ||'https://aremikreo.github.io/kalkulator.html');');
 let qrTimer;
 qrInput.addEventListener('input', () => {
   clearTimeout(qrTimer);
